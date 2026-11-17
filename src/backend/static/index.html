@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TITAN PALANTIR COCKPIT | Groww-Clean Capital Markets Intelligence</title>
+  <link rel="stylesheet" href="/static/styles.css?v=7.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/static/vendor/lightweight-charts.standalone.production.js"></script>
+  <script src="/static/vendor/cytoscape.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header (Groww Style) -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="brand-icon">T</div>
+      <div class="brand-text">
+        <div class="brand-name">
+          Titan Markets <span class="brand-tag">INTELLIGENCE</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="segment-switch-group">
+      <button id="seg-btn-markets" class="seg-btn active">📈 Markets AI</button>
+      <button id="seg-btn-cricket" class="seg-btn">🏏 Cricket AI</button>
+    </div>
+
+    <!-- Centered Search Bar -->
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="watchlist-search" class="search-bar-input" placeholder="Search 50 stocks or cricket teams..." autocomplete="off">
+    </div>
+
+    <!-- Right Controls -->
+    <div class="header-right">
+      <a href="/landing" class="landing-link-pill" title="Return to Public Landing Page">🌐 Main Site</a>
+      <div id="market-status-badge" class="status-badge">
+        <span id="market-status-dot" class="badge-dot"></span>
+        <span id="market-status-text">Checking Market Hours...</span>
+      </div>
+      <button id="sim-stream-btn" class="sim-toggle-btn" title="Toggle simulation stream during market off-hours">
+        ⚡ Sim Stream
+      </button>
+      <div class="status-badge" style="color: var(--groww-green);">
+        <span>Regime:</span>
+        <span id="header-regime-label" style="font-weight: 700;">Expansion (Bullish)</span>
+      </div>
+      <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle Dark / Light Mode">
+        <span id="theme-icon">☀️</span>
+      </button>
+      <button id="btn-refresh-all" class="btn-sync" title="Refresh all 50 equity forecasts">
+        <span>↻</span> Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body: 2-Column Groww Split -->
+  <main class="app-main">
+
+    <!-- Left Column: Watchlist Panel (340px) -->
+    <aside class="watchlist-panel">
+      <!-- Markets Watchlist Segment -->
+      <div id="markets-watchlist-container" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="watchlist-top">
+          <div class="watchlist-title-row">
+            <span class="watchlist-heading">Top 50 Stocks</span>
+            <span id="stock-count-label" class="watchlist-count-badge">50 Stocks</span>
+          </div>
+
+          <!-- Horizontal Sector Chips -->
+          <div class="sector-chips" id="sector-chips-container">
+            <button class="chip-btn active" data-sector="ALL">All</button>
+            <button class="chip-btn" data-sector="Automobile">Auto</button>
+            <button class="chip-btn" data-sector="IT Services">IT</button>
+            <button class="chip-btn" data-sector="Banking & Financial Services">Banking</button>
+            <button class="chip-btn" data-sector="Oil, Gas & Energy">Energy</button>
+            <button class="chip-btn" data-sector="Metals & Mining">Metals</button>
+            <button class="chip-btn" data-sector="Consumer Goods & Retail">Consumer</button>
+            <button class="chip-btn" data-sector="Pharmaceuticals & Healthcare">Pharma</button>
+            <button class="chip-btn" data-sector="Infrastructure & Capital Goods">Infra</button>
+          </div>
+        </div>
+
+        <!-- Stock Items List -->
+        <ul id="stock-list" class="stock-items-list">
+          <!-- Rendered dynamically by app.js -->
+        </ul>
+      </div>
+
+      <!-- Cricket Watchlist Segment -->
+      <div id="cricket-watchlist-container" style="display: none; flex-direction: column; height: 100%;">
+        <div class="watchlist-top">
+          <div class="watchlist-title-row">
+            <span class="watchlist-heading">🏏 International Matches</span>
+            <span id="cricket-count-label" class="watchlist-count-badge">5 Matches</span>
+          </div>
+
+          <!-- Cricket Format Chips -->
+          <div class="sector-chips" id="cricket-format-chips">
+            <button class="chip-btn active" data-format="ALL">All</button>
+            <button class="chip-btn" data-format="T20I">T20I</button>
+            <button class="chip-btn" data-format="ODI">ODI</button>
+            <button class="chip-btn" data-format="TEST">TEST</button>
+          </div>
+        </div>
+
+        <!-- Cricket Match Items List -->
+        <ul id="cricket-match-list" class="stock-items-list" style="padding: 10px; gap: 8px;">
+          <!-- Rendered dynamically by app.js -->
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Right Column: Main Stock Workspace -->
+    <section class="workspace-panel">
+
+      <!-- Markets Workspace Container -->
+      <div id="markets-workspace-container" style="display: flex; flex-direction: column; gap: 14px; overflow-y: auto;">
+
+      <!-- 1. Stock Hero Header Card (Always prominent at the top) -->
+      <div class="stock-hero-card">
+        <div class="hero-main-details">
+          <div id="hero-avatar" class="hero-avatar">TM</div>
+          <div class="hero-title-group">
+            <h1 id="canvas-company-name" class="hero-company-name">Tata Motors Limited</h1>
+            <div class="hero-meta-row">
+              <span id="canvas-symbol" class="hero-tag" style="color: var(--groww-green); font-weight: 700;">TATAMOTORS</span>
+              <span id="canvas-sector" class="hero-tag">Automobile</span>
+              <span class="hero-tag">Large Cap • Nifty 50</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-price-group">
+          <div id="canvas-curr-price" class="hero-price-large">₹785.40</div>
+          <div id="hero-return-pill" class="hero-change-pill pill-positive">+₹14.20 (+1.84%) 20D</div>
+        </div>
+      </div>
+
+      <!-- 2. AI Investment Verdict Bar (3 Clean Cards) -->
+      <div class="ai-summary-bar">
+        <!-- Verdict 1: Outlook -->
+        <div class="ai-stat-card">
+          <div class="ai-stat-icon" style="background: var(--groww-green-bg); color: var(--groww-green);">📈</div>
+          <div class="ai-stat-content">
+            <span class="ai-stat-label">AI Directional Outlook</span>
+            <span id="card-tilt-badge" class="ai-stat-val" style="color: var(--groww-green);">Bullish Outlook</span>
+            <span id="card-confidence" class="ai-stat-sub">74% AI Confidence</span>
+          </div>
+        </div>
+
+        <!-- Verdict 2: Target Corridor -->
+        <div class="ai-stat-card">
+          <div class="ai-stat-icon" style="background: var(--groww-blue-bg); color: var(--groww-blue);">🎯</div>
+          <div class="ai-stat-content">
+            <span class="ai-stat-label">2-3 Month Expected Target</span>
+            <span id="card-median-target" class="ai-stat-val" style="color: #387ED1;">₹845.00 (+7.6%)</span>
+            <span id="canvas-corridor-span" class="ai-stat-sub">Range: ₹710 – ₹915</span>
+          </div>
+        </div>
+
+        <!-- Verdict 3: Safety Stop-Loss -->
+        <div class="ai-stat-card">
+          <div class="ai-stat-icon" style="background: rgba(239, 68, 68, 0.12); color: #EF4444;">🛡️</div>
+          <div class="ai-stat-content">
+            <span class="ai-stat-label">Structural Stop-Loss</span>
+            <span id="card-inval-price" class="ai-stat-val" style="color: #EF4444;">₹740.00</span>
+            <span id="card-thesis-status" class="ai-stat-sub" style="color: var(--groww-green); font-weight: 600;">Safe (5.8% buffer)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.3 Dedicated 2-3 Month AI Future Projection Section -->
+      <div class="future-outlook-card" id="future-outlook-section">
+        <div class="future-outlook-header">
+          <div class="future-title-group">
+            <div class="future-badge">🔮 NEXT 2-3 MONTHS AI PROJECTION</div>
+            <div class="future-horizon-text">Institutional 60–90 Day Quantile Corridor Projection (Q1 2027)</div>
+          </div>
+          <div class="future-header-stats">
+            <span class="future-stat-chip">Horizon: <strong>60 Trading Days</strong></span>
+            <span class="future-stat-chip" id="future-model-name">Model: <strong>LightGBM Corridor + Macro HMM</strong></span>
+          </div>
+        </div>
+
+        <div class="future-scenarios-grid">
+          <!-- Scenario 1: Bullish Ceiling (q95) -->
+          <div class="future-scenario-card scenario-bullish">
+            <div class="scenario-top">
+              <span class="scenario-badge badge-bull">🚀 Bullish Ceiling (95% CI)</span>
+              <span id="future-bull-pct" class="scenario-ret">+12.6%</span>
+            </div>
+            <div class="scenario-price" id="future-bull-price">₹1,508.84</div>
+            <div class="scenario-desc">Optimistic upside expansion under sustained institutional buying, multiple expansion, and sector tailwinds.</div>
+          </div>
+
+          <!-- Scenario 2: Baseline Median (q50) -->
+          <div class="future-scenario-card scenario-median">
+            <div class="scenario-top">
+              <span class="scenario-badge badge-median">🎯 Expected Baseline Target (Median)</span>
+              <span id="future-med-pct" class="scenario-ret">+7.2%</span>
+            </div>
+            <div class="scenario-price" id="future-med-price">₹1,344.80</div>
+            <div class="scenario-desc">Statistical median trajectory representing the most probable 60-day price equilibrium.</div>
+          </div>
+
+          <!-- Scenario 3: Bearish Floor (q05) -->
+          <div class="future-scenario-card scenario-bearish">
+            <div class="scenario-top">
+              <span class="scenario-badge badge-bear">🛡️ Bearish Floor (5% Tail Risk)</span>
+              <span id="future-bear-pct" class="scenario-ret">-13.5%</span>
+            </div>
+            <div class="scenario-price" id="future-bear-price">₹1,159.33</div>
+            <div class="scenario-desc">Downside structural support floor representing the 95% statistical safety boundary against macro shocks.</div>
+          </div>
+        </div>
+
+        <!-- Future Strategic Summary Footer -->
+        <div class="future-strategy-bar">
+          <div class="future-strategy-left">
+            <span class="strategy-label">Strategic Verdict:</span>
+            <span id="future-verdict-text" class="strategy-value">Bullish Accumulation on Dips</span>
+            <span class="strategy-sep">•</span>
+            <span class="strategy-label">Stop-Loss Invalidation:</span>
+            <span id="future-inval-text" class="strategy-inval" style="color: #EF4444; font-weight: 700;">₹1,377.71 (2.8% buffer)</span>
+            <span class="strategy-sep">•</span>
+            <span class="strategy-label">Risk/Reward:</span>
+            <span id="future-rr-text" class="strategy-value">1 : 2.4</span>
+          </div>
+          <div class="future-strategy-right">
+            <span id="future-confidence-badge" class="future-conf-tag">74% AI Confidence</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.5 Prominent Live Real-Time AI Pattern & RAG Co-Pilot Card -->
+      <div class="live-rag-card" id="live-ai-rag-card">
+        <div class="live-rag-header">
+          <div class="live-header-left">
+            <div class="live-stream-badge">
+              <span class="live-pulse-dot"></span>
+              <span class="live-stream-label">LIVE 1s STREAM</span>
+            </div>
+            <div class="live-ticker-info">
+              <span id="live-ticker-symbol" class="live-symbol-tag">TATAMOTORS</span>
+              <span id="live-ticker-price" class="live-price-tag">₹287.40</span>
+              <span id="live-ticker-spread" class="live-spread-tag">Bid: ₹287.35 • Ask: ₹287.45</span>
+            </div>
+          </div>
+          <div class="live-header-right">
+            <span class="live-engine-tag">Online Learning:</span>
+            <span id="live-learning-status" style="color: var(--groww-green); font-weight: 700;">Active (1s loop)</span>
+          </div>
+        </div>
+
+        <div class="live-rag-body">
+          <!-- Left: Real-Time Pattern Recognition & Gauges -->
+          <div class="live-pattern-box">
+            <div class="live-pattern-top">
+              <span class="live-box-label">Live Recognized Pattern</span>
+              <div class="live-pattern-chip" id="live-pattern-chip">
+                <span id="live-pattern-icon">⚡</span>
+                <span id="live-pattern-name">Micro-Structure Calibrating</span>
+              </div>
+            </div>
+            <div class="live-pattern-desc" id="live-pattern-desc">
+              Real-time tick engine is ingesting order flow to recognize breakouts, mean-reversion, and Wyckoff absorption.
+            </div>
+            <!-- Micro Metric Badges -->
+            <div class="live-metrics-strip">
+              <div class="live-metric-pill">
+                <span class="metric-lbl">Micro RSI</span>
+                <span id="live-rsi-val" class="metric-val">50.0</span>
+              </div>
+              <div class="live-metric-pill">
+                <span class="metric-lbl">Rolling VWAP</span>
+                <span id="live-vwap-val" class="metric-val">₹287.40</span>
+              </div>
+              <div class="live-metric-pill">
+                <span class="metric-lbl">Vol Surge</span>
+                <span id="live-vol-ratio" class="metric-val">1.0x</span>
+              </div>
+              <div class="live-metric-pill">
+                <span class="metric-lbl">Bayesian Bull</span>
+                <span id="live-bayesian-val" class="metric-val" style="color: var(--groww-green);">65%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: RAG Historical Precedent & Tactical Playbook -->
+          <div class="live-rag-knowledge-box">
+            <div class="rag-header-row">
+              <div class="rag-title-group">
+                <span class="live-box-label">RAG Historical Precedent</span>
+                <div id="rag-precedent-title" class="rag-episode-title">Institutional High-Volume Expansion Breakout</div>
+              </div>
+              <div class="rag-win-badge" id="rag-win-rate-pill">
+                <span id="rag-win-rate-val">74.5%</span> Win Rate
+              </div>
+            </div>
+            <div class="rag-episode-subtitle" id="rag-episode-subtitle">
+              Matched: Tata Motors Nov 2023 EV delivery acceleration breakout above ₹680
+            </div>
+            <div class="rag-playbook-grid">
+              <div class="rag-playbook-item">
+                <span class="playbook-lbl">Expected 5D Return</span>
+                <span id="rag-expected-return" class="playbook-val" style="color: var(--groww-green);">+4.8%</span>
+              </div>
+              <div class="rag-playbook-item">
+                <span class="playbook-lbl">Tactical Entry</span>
+                <span id="rag-entry-rule" class="playbook-val">Confirm 1.8x volume surge</span>
+              </div>
+              <div class="rag-playbook-item">
+                <span class="playbook-lbl">Stop Invalidation</span>
+                <span id="rag-stop-price" class="playbook-val" style="color: #EF4444;">₹282.50</span>
+              </div>
+              <div class="rag-playbook-item">
+                <span class="playbook-lbl">Target 1 (+3.5%)</span>
+                <span id="rag-target-1" class="playbook-val" style="color: #00F0FF;">₹297.45</span>
+              </div>
+            </div>
+            <div class="rag-mechanics-note" id="rag-mechanics-text">
+              Smart money absorbs floating liquidity at resistance ceiling, creating an order imbalance that forces rapid repricing.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Interactive Chart Card (Centerpiece) -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-view-tabs">
+            <button id="tab-chart" class="view-tab-btn active">📈 Candlestick & Target Corridor</button>
+            <button id="tab-graph" class="view-tab-btn">🕸️ Supply Chain Network</button>
+          </div>
+
+          <div class="chart-legend" id="chart-legend-box">
+            <div class="legend-item"><span class="legend-dot" style="background: var(--text-secondary);"></span> Historical Price</div>
+            <div class="legend-item"><span class="legend-dot" style="background: #00F0FF;"></span> Median Target</div>
+            <div class="legend-item"><span class="legend-dot" style="background: var(--groww-green);"></span> Bullish Ceiling (95%)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: var(--groww-red);"></span> Bearish Floor (5%)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: #EF4444;"></span> Stop-Loss Floor</div>
+          </div>
+        </div>
+
+        <!-- Viewport Container with Fixed Dimensions -->
+        <div class="chart-view-container">
+          <!-- TradingView Chart Viewport -->
+          <div id="chart-viewport">
+            <div id="chart-container"></div>
+          </div>
+
+          <!-- Cytoscape Graph Viewport -->
+          <div id="graph-viewport" style="display: none;">
+            <div class="cy-controls">
+              <button id="cy-btn-fit" class="cy-btn">Center View</button>
+              <button id="cy-btn-zoom-in" class="cy-btn">+</button>
+              <button id="cy-btn-zoom-out" class="cy-btn">-</button>
+            </div>
+            <div id="cy-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Groww-Style Details Section Tabs & Cards (Below Chart) -->
+      <div class="details-section-card">
+        <div class="detail-nav-tabs">
+          <button class="detail-tab-btn active" data-tab="tab-corridor">📊 Price Corridor Meter</button>
+          <button class="detail-tab-btn" data-tab="tab-fundamentals">📑 Financial Health</button>
+          <button class="detail-tab-btn" data-tab="tab-advice-history">🎯 Advice & Target Hit History</button>
+          <button class="detail-tab-btn" data-tab="tab-analogs">🔄 Past Pattern Matches</button>
+          <button class="detail-tab-btn" data-tab="tab-announcements">📢 Company Filings</button>
+        </div>
+
+        <!-- Tab Content 1: Corridor Range Meter -->
+        <div id="tab-corridor" class="detail-tab-content active">
+          <div class="corridor-bar-container">
+            <div class="corridor-range-track">
+              <div id="corridor-pin" class="corridor-current-pin"></div>
+            </div>
+            <div class="corridor-labels-row">
+              <span id="card-floor-q05" style="color: var(--groww-red);">Floor: ₹710.00</span>
+              <span id="card-current-label" style="color: var(--text-primary); font-weight: 700;">Current: ₹785.40</span>
+              <span id="card-ceiling-q95" style="color: var(--groww-green);">Ceiling: ₹915.00</span>
+            </div>
+          </div>
+
+          <div class="corridor-stat-grid">
+            <div class="corridor-mini-stat">
+              <span class="corridor-mini-stat-label">Upside Potential</span>
+              <span id="stat-upside" class="corridor-mini-stat-val" style="color: var(--groww-green);">+16.5%</span>
+            </div>
+            <div class="corridor-mini-stat">
+              <span class="corridor-mini-stat-label">Downside Risk</span>
+              <span id="stat-downside" class="corridor-mini-stat-val" style="color: var(--groww-red);">-9.6%</span>
+            </div>
+            <div class="corridor-mini-stat">
+              <span class="corridor-mini-stat-label">Risk-Reward Ratio</span>
+              <span id="stat-rr-ratio" class="corridor-mini-stat-val" style="color: var(--text-primary);">1 : 1.72</span>
+            </div>
+            <div class="corridor-mini-stat">
+              <span class="corridor-mini-stat-label">Stop-Loss Buffer</span>
+              <span id="stat-inval-buffer" class="corridor-mini-stat-val" style="color: var(--groww-green);">5.8%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content 2: Visual Financial Charts & Health -->
+        <div id="tab-fundamentals" class="detail-tab-content">
+          <div class="fund-header-row">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-primary);">📊 Quarterly Financial Performance Charts</span>
+            <span style="font-size: 11px; color: var(--text-muted);" id="card-fund-filing">Verified Point-in-Time Statements</span>
+          </div>
+
+          <!-- Dynamic Visual Financial Charts Grid -->
+          <div class="financial-charts-grid">
+            <!-- Chart 1: Revenue Progression -->
+            <div class="financial-chart-box">
+              <div class="chart-box-title">Quarterly Revenue Growth (₹ in Crores)</div>
+              <div id="revenue-chart-svg" class="svg-chart-container">
+                <!-- Rendered dynamically by app.js -->
+              </div>
+            </div>
+
+            <!-- Chart 2: Net Profit & Margin Curve -->
+            <div class="financial-chart-box">
+              <div class="chart-box-title">Net Profit (PAT ₹ Cr) & EBITDA Margin (%)</div>
+              <div id="profit-chart-svg" class="svg-chart-container">
+                <!-- Rendered dynamically by app.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Financial Metric Cells -->
+          <div class="fundamentals-grid" style="margin-top: 10px;">
+            <div class="fund-cell">
+              <span class="fund-cell-label">Latest Quarterly Revenue</span>
+              <span id="card-fund-rev" class="fund-cell-value">₹108,048 Cr</span>
+            </div>
+            <div class="fund-cell">
+              <span class="fund-cell-label">Operating EBITDA Margin</span>
+              <span id="card-fund-margin" class="fund-cell-value" style="color: var(--groww-green);">14.2%</span>
+            </div>
+            <div class="fund-cell">
+              <span class="fund-cell-label">Net Profit (PAT)</span>
+              <span id="card-fund-pat" class="fund-cell-value">₹5,566 Cr</span>
+            </div>
+            <div class="fund-cell">
+              <span class="fund-cell-label">Debt-to-Equity Ratio</span>
+              <span id="card-fund-de" class="fund-cell-value">1.28</span>
+            </div>
+            <div class="fund-cell">
+              <span class="fund-cell-label">Promoter Holding</span>
+              <span id="card-fund-promoter" class="fund-cell-value">46.3%</span>
+            </div>
+            <div class="fund-cell">
+              <span class="fund-cell-label">Promoter Pledged Shares</span>
+              <span id="card-fund-pledged" class="fund-cell-value" style="color: var(--groww-green);">0.0% (Zero Risk)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content 3: Past Pattern Matches -->
+        <div id="tab-analogs" class="detail-tab-content">
+          <div id="analogs-container" class="analogs-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab Content 4: Corporate Announcements & Filings -->
+        <div id="tab-announcements" class="detail-tab-content">
+          <div class="announcements-top-bar">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-primary);">📢 Verified Company Filings & Material Disclosures</span>
+            <span class="announcements-tag">Official BSE / NSE Regulatory Feed</span>
+          </div>
+          <div id="announcements-container" class="announcements-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab Content 5: Past Advice & Target Hit History -->
+        <div id="tab-advice-history" class="detail-tab-content">
+          <div class="advice-header-row">
+            <div>
+              <span class="advice-heading">🎯 AI Recommendations & Target Hit Audit Log</span>
+              <span class="advice-subtext" id="advice-stock-label">Verifiable past trade signals and realized outcomes</span>
+            </div>
+            <div class="advice-live-badge">Verified Quantitative Track Record</div>
+          </div>
+
+          <!-- Track Record Metric Strip -->
+          <div class="advice-metrics-grid">
+            <div class="advice-stat-card">
+              <span class="advice-stat-label">Target Hit Rate</span>
+              <span id="stat-hit-rate" class="advice-stat-val" style="color: var(--groww-green);">87.5%</span>
+              <span id="stat-hit-fraction" class="advice-stat-sub">7 of 8 Targets Achieved</span>
+            </div>
+            <div class="advice-stat-card">
+              <span class="advice-stat-label">Avg Return / Call</span>
+              <span id="stat-avg-return" class="advice-stat-val" style="color: var(--groww-green);">+8.6%</span>
+              <span class="advice-stat-sub">Across closed calls</span>
+            </div>
+            <div class="advice-stat-card">
+              <span class="advice-stat-label">Avg Duration to Target</span>
+              <span id="stat-avg-duration" class="advice-stat-val">16.4 Days</span>
+              <span class="advice-stat-sub">From advice to target</span>
+            </div>
+            <div class="advice-stat-card">
+              <span class="advice-stat-label">Profit Factor</span>
+              <span id="stat-profit-factor" class="advice-stat-val" style="color: #387ED1;">3.8x</span>
+              <span class="advice-stat-sub">Gross Win / Gross Loss</span>
+            </div>
+          </div>
+
+          <!-- Advice History Feed -->
+          <div id="advice-list-container" class="advice-list-container">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+      </div><!-- End markets-workspace-container -->
+
+      <!-- =========================================================
+           CRICKET MATCH AI INTELLIGENCE WORKSPACE CONTAINER
+           ========================================================= -->
+      <div id="cricket-workspace-container" style="display: none; flex-direction: column; gap: 14px; overflow-y: auto;">
+
+        <!-- 1. Match Hero Banner (Google Cricket Scorecard Design) -->
+        <div class="cricket-hero-banner" id="cricket-hero-banner">
+          <!-- Top Row: Series & Match Meta Header -->
+          <div class="cricket-hero-top-row">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span id="cricket-series-title" class="cricket-series-title">Sri Lanka tour of Pakistan 2026 (2nd Test)</span>
+              <span id="cricket-format-badge" class="hero-tag" style="background: var(--groww-green-bg); color: var(--groww-green); font-weight: 800;">TEST</span>
+              <span id="cricket-venue-text" class="hero-tag">Rawalpindi Cricket Stadium, Rawalpindi</span>
+              <span id="cricket-time-text" class="hero-tag">17–21 Nov • 10:30 IST</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <div id="cricket-status-pill" class="status-live-pill">
+                <span class="live-pulse-dot"></span>
+                <span id="cricket-status-text">Day 1 • Session 2</span>
+              </div>
+              <button id="cricket-refresh-live-btn" class="cricket-sync-live-btn" title="Refresh live match scorecard and win probability">
+                <span>⚡</span> Refresh Live Score
+              </button>
+              <button id="cricket-learn-btn" class="cricket-learn-trigger-btn" title="Submit match result to update Bayesian Elo ratings & self-learning memory">
+                <span>🧠</span> Learn Result & Update Brain
+              </button>
+            </div>
+          </div>
+
+          <!-- Dual Team Live Scoreboard (Matching Google Live Card) -->
+          <div class="cricket-scoreboard-grid">
+            <!-- Team A (Batting) -->
+            <div class="cricket-team-score-card team-score-left">
+              <div id="cricket-avatar-a" class="cricket-hero-avatar"></div>
+              <div class="team-score-info">
+                <div id="cricket-team-name-a" class="team-hero-name">Sri Lanka</div>
+                <div class="team-score-display">
+                  <span id="cricket-score-val-a" class="score-main-digits">85/6</span>
+                  <span id="cricket-overs-val-a" class="score-overs-tag">(29 ov) • 1st</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Match Session Center Badge -->
+            <div class="cricket-session-center">
+              <span class="session-vs-badge">VS</span>
+              <span id="cricket-session-badge" class="session-sub-badge">Day 1 • Lunch</span>
+            </div>
+
+            <!-- Team B (Bowling / Yet to Bat) -->
+            <div class="cricket-team-score-card team-score-right">
+              <div class="team-score-info" style="text-align: right;">
+                <div id="cricket-team-name-b" class="team-hero-name">Pakistan</div>
+                <div class="team-score-display" style="justify-content: flex-end;">
+                  <span id="cricket-score-val-b" class="score-main-digits">Yet to bat</span>
+                  <span id="cricket-overs-val-b" class="score-overs-tag">1st Innings</span>
+                </div>
+              </div>
+              <div id="cricket-avatar-b" class="cricket-hero-avatar"></div>
+            </div>
+          </div>
+
+          <!-- Toss & Match State Summary Line -->
+          <div class="cricket-toss-strip">
+            <span id="cricket-toss-info">PAK chose to bowl first • Test 2 of 2 • Day 1 • End of session 1 (Lunch)</span>
+          </div>
+
+          <!-- Live In-Play Stats Strip (Batting & Bowling) -->
+          <div id="cricket-live-stats-strip" class="cricket-inplay-strip">
+            <div class="inplay-col">
+              <div class="inplay-col-header" id="cricket-batting-header">
+                <span>🏏 SL BATTING</span>
+              </div>
+              <div class="inplay-stat-line" id="cricket-batsman-row-1">
+                <span class="stat-player" id="cricket-bat-p1">S. Dinusha</span>
+                <span class="stat-highlight" id="cricket-bat-s1">15* (30)</span>
+              </div>
+              <div class="inplay-stat-line" id="cricket-batsman-row-2">
+                <span class="stat-player" id="cricket-bat-p2">M. Rathnayake</span>
+                <span class="stat-highlight" id="cricket-bat-s2">0* (3)</span>
+              </div>
+            </div>
+
+            <div class="inplay-col">
+              <div class="inplay-col-header" id="cricket-bowling-header">
+                <span>🎯 PAK BOWLING</span>
+              </div>
+              <div class="inplay-stat-line" id="cricket-bowler-row-1">
+                <span class="stat-player" id="cricket-bowl-p1">M. Abbas</span>
+                <span class="stat-highlight" id="cricket-bowl-s1">2/12 (11.0)</span>
+              </div>
+              <div class="inplay-stat-line" id="cricket-bowler-row-2">
+                <span class="stat-player" id="cricket-bowl-p2">A. Jamal</span>
+                <span class="stat-highlight" id="cricket-bowl-s2">1/23 (5.0)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Learning Feedback Telemetry Alert -->
+        <div id="cricket-learning-alert" class="learning-alert-banner" style="display: none;"></div>
+
+        <!-- 2. AI Match Win Probability Gauge Card (Matching Google Live 3-Way Win Prob) -->
+        <div class="cricket-win-card" id="cricket-win-card">
+          <div class="win-meter-header">
+            <div class="win-meter-title">
+              <span>🔮 AI MATCH WIN PROBABILITY GAUGE</span>
+              <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">(Bayesian In-Play Calibration)</span>
+            </div>
+            <div id="cricket-confidence-tag" class="future-conf-tag">88.0% AI Confidence</div>
+          </div>
+
+          <!-- Dynamic 3-Way Win Meter Track -->
+          <div class="win-meter-track" id="cricket-win-meter-track">
+            <div id="cricket-meter-side-a" class="win-meter-side-a" style="width: 15%;">
+              <span id="cricket-prob-label-a">Sri Lanka 15%</span>
+            </div>
+            <div id="cricket-meter-side-draw" class="win-meter-side-draw" style="width: 13%;">
+              <span id="cricket-prob-label-draw">Draw 13%</span>
+            </div>
+            <div id="cricket-meter-side-b" class="win-meter-side-b" style="width: 72%;">
+              <span id="cricket-prob-label-b">Pakistan 72%</span>
+            </div>
+          </div>
+
+          <!-- Win Verdict Footer -->
+          <div class="win-meter-footer">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="color: var(--text-muted);">AI Predicted Winner:</span>
+              <span id="cricket-predicted-winner" style="color: var(--groww-green); font-weight: 800;">Pakistan (72.0% Prob)</span>
+              <span class="strategy-sep">•</span>
+              <span style="color: var(--text-muted);">Model State:</span>
+              <span id="cricket-risk-rating" style="color: #00F0FF; font-weight: 700;">Dominant In-Play Lead</span>
+            </div>
+            <div id="cricket-tactical-thesis" style="font-size: 11px; color: var(--text-secondary); max-width: 520px; text-align: right;">
+              Pakistan in 72% control after Abbas & Jamal dismantle Sri Lanka for 85/6 in session 1.
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Projected 1st Innings Score Corridor (95% CI) -->
+        <div class="cricket-corridor-grid">
+          <div class="cricket-corridor-box box-ceil">
+            <span style="font-size: 10px; font-weight: 700; color: var(--groww-green); text-transform: uppercase;">🚀 Ceiling Total (95% CI)</span>
+            <div id="cricket-corridor-q95" class="cricket-box-score">220 Runs</div>
+            <span style="font-size: 10px; color: var(--text-muted);">High powerplay score & late order surge</span>
+          </div>
+          <div class="cricket-corridor-box box-med">
+            <span style="font-size: 10px; font-weight: 700; color: #387ED1; text-transform: uppercase;">🎯 Expected Median Total</span>
+            <div id="cricket-corridor-q50" class="cricket-box-score">185 Runs</div>
+            <span style="font-size: 10px; color: var(--text-muted);">Most probable statistical venue equilibrium</span>
+          </div>
+          <div class="cricket-corridor-box box-floor">
+            <span style="font-size: 10px; font-weight: 700; color: var(--groww-red); text-transform: uppercase;">🛡️ Floor Total (5% Tail Risk)</span>
+            <div id="cricket-corridor-q05" class="cricket-box-score">168 Runs</div>
+            <span style="font-size: 10px; color: var(--text-muted);">Early wickets in powerplay under seam movement</span>
+          </div>
+        </div>
+
+        <!-- 4. Cricket Intelligence Detail Tabs & Analytics -->
+        <div class="details-section-card">
+          <div class="detail-nav-tabs">
+            <button class="detail-tab-btn active" data-cricket-tab="tab-cricket-h2h">📊 2-Year Head-to-Head Radar</button>
+            <button class="detail-tab-btn" data-cricket-tab="tab-cricket-venue">🏟️ Pitch & Venue Analytics</button>
+            <button class="detail-tab-btn" data-cricket-tab="tab-cricket-factors">⚡ Tactical Deciders & Key Battles</button>
+            <button class="detail-tab-btn" data-cricket-tab="tab-cricket-brain">🧠 AI Brain Self-Learning & Hit Rate Log</button>
+          </div>
+
+          <!-- Cricket Tab 1: Head-to-Head 2-Year Pattern -->
+          <div id="tab-cricket-h2h" class="detail-tab-content active">
+            <div class="advice-header-row">
+              <div>
+                <span class="advice-heading">Head-to-Head 2-Year Historical Pattern</span>
+                <span id="cricket-h2h-summary-text" class="advice-subtext">Last 10 encounters across bilateral series and ICC tournaments</span>
+              </div>
+              <div id="cricket-h2h-pill" class="advice-live-badge">India 4 - 2 Australia</div>
+            </div>
+            <div id="cricket-h2h-matches-list" class="advice-list-container">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+          </div>
+
+          <!-- Cricket Tab 2: Pitch & Venue Analytics -->
+          <div id="tab-cricket-venue" class="detail-tab-content">
+            <div class="advice-header-row">
+              <div>
+                <span id="cricket-venue-name-bold" class="advice-heading">Wankhede Stadium, Mumbai</span>
+                <span class="advice-subtext">Historical pitch decay, boundary dimensions, and dew statistics</span>
+              </div>
+              <span id="cricket-pitch-type-pill" class="advice-live-badge" style="background: var(--groww-blue-bg); color: #00F0FF; border-color: rgba(0, 240, 255, 0.3);">Batting Paradise</span>
+            </div>
+            <div class="fundamentals-grid" style="margin-top: 10px;">
+              <div class="fund-cell">
+                <span class="fund-cell-label">Avg 1st Innings Score (T20I)</span>
+                <span id="cricket-venue-avg-t20" class="fund-cell-value">192 Runs</span>
+              </div>
+              <div class="fund-cell">
+                <span class="fund-cell-label">Batting 1st Win Rate</span>
+                <span id="cricket-venue-bat1st-pct" class="fund-cell-value" style="color: var(--groww-green);">46.5% (Chasing Favored)</span>
+              </div>
+              <div class="fund-cell">
+                <span class="fund-cell-label">Dew Impact Factor</span>
+                <span id="cricket-venue-dew" class="fund-cell-value" style="color: #00F0FF;">High (Significant Swing)</span>
+              </div>
+              <div class="fund-cell">
+                <span class="fund-cell-label">Pace vs Spin Wicket Split</span>
+                <span id="cricket-venue-pace-spin" class="fund-cell-value">Pace 62% : Spin 38%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cricket Tab 3: Tactical Deciders & Key Battles -->
+          <div id="tab-cricket-factors" class="detail-tab-content">
+            <div class="advice-header-row">
+              <span class="advice-heading">⚡ Tactical Deciding Factors & Key Player Battles</span>
+              <span class="advice-live-badge">AI Pattern Match</span>
+            </div>
+            <div id="cricket-factors-container" class="advice-list-container">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+          </div>
+
+          <!-- Cricket Tab 4: AI Brain Self-Learning & Hit Rate Log -->
+          <div id="tab-cricket-brain" class="detail-tab-content">
+            <div class="advice-header-row">
+              <div>
+                <span class="advice-heading">🧠 AI Brain Self-Learning Track Record</span>
+                <span class="advice-subtext">Continuous Bayesian calibration on international match outcomes</span>
+              </div>
+              <div class="advice-live-badge">Model v2.4 Active</div>
+            </div>
+
+            <!-- Track Record Metric Strip -->
+            <div class="advice-metrics-grid">
+              <div class="advice-stat-card">
+                <span class="advice-stat-label">Prediction Hit Rate</span>
+                <span id="cricket-stat-hit-rate" class="advice-stat-val" style="color: var(--groww-green);">88.9%</span>
+                <span id="cricket-stat-fraction" class="advice-stat-sub">8 of 9 Predictions Hit</span>
+              </div>
+              <div class="advice-stat-card">
+                <span class="advice-stat-label">Average Confidence</span>
+                <span id="cricket-stat-conf" class="advice-stat-val" style="color: #00F0FF;">83.2%</span>
+                <span class="advice-stat-sub">Model certainty score</span>
+              </div>
+              <div class="advice-stat-card">
+                <span class="advice-stat-label">Calibration Dataset</span>
+                <span class="advice-stat-val" style="font-size: 15px;">2-Year ICC</span>
+                <span class="advice-stat-sub">T20I, ODI & Test</span>
+              </div>
+              <div class="advice-stat-card">
+                <span class="advice-stat-label">Learning Status</span>
+                <span class="advice-stat-val" style="color: var(--groww-green); font-size: 15px;">Self-Tuning</span>
+                <span class="advice-stat-sub">Bayesian Prior Updates</span>
+              </div>
+            </div>
+
+            <!-- Interactive AI Learning Feedback Box -->
+            <div class="cricket-trainer-box">
+              <div>
+                <div style="font-weight: 700; color: #FFFFFF; font-size: 12px; margin-bottom: 2px;">⚡ Live Brain Feedback: Train Active Match Result</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Select the actual match winner to trigger dynamic Bayesian Elo updates and record Target Hit accuracy.</div>
+              </div>
+              <div class="trainer-btn-group">
+                <button id="btn-learn-winner-a" class="trainer-action-btn">🏆 Record Win for Team A</button>
+                <button id="btn-learn-winner-b" class="trainer-action-btn">🏆 Record Win for Team B</button>
+              </div>
+            </div>
+
+            <!-- Prediction Audit Logs List -->
+            <div id="cricket-audit-list" class="advice-list-container">
+              <!-- Populated dynamically by app.js -->
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- End cricket-workspace-container -->
+
+    </section>
+  </main>
+
+  <!-- Clean Footer Bar -->
+  <footer class="app-footer">
+    <div class="footer-left">
+      <div class="footer-item">
+        <span>Selected:</span>
+        <span id="dock-active-symbol" class="footer-val">TATAMOTORS</span>
+      </div>
+      <div class="footer-item">
+        <span>• 50 Equities</span>
+      </div>
+      <div class="footer-item">
+        <span>• <span id="dock-total-bars">61,361</span> Daily Bars</span>
+      </div>
+      <div class="footer-item">
+        <span>• Storage: <span id="dock-storage-size">7.5 MB DuckDB</span></span>
+      </div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-item">
+        <span>Lakehouse Speed:</span>
+        <span id="header-latency-text" class="footer-val">2.1ms</span>
+      </div>
+      <div class="footer-item">
+        <span id="clock-display">16:35:10 IST</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/app.js?v=7.0"></script>
+</body>
+</html>

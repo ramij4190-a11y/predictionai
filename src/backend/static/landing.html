@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Titan AI | Next-Gen Quantitative Intelligence for Markets & Cricket</title>
+  <link rel="stylesheet" href="/static/styles.css?v=5.5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Dedicated Landing Page Clean Styles */
+    .landing-body {
+      background: radial-gradient(circle at 50% 0%, #152033 0%, #0C1017 70%);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      overflow-y: auto !important;
+      height: auto !important;
+      min-height: 100vh;
+    }
+    .landing-nav {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(12, 16, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .landing-hero {
+      max-width: 1180px;
+      margin: 60px auto 40px;
+      text-align: center;
+      padding: 0 20px;
+    }
+    .hero-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 208, 156, 0.1);
+      border: 1px solid rgba(0, 208, 156, 0.3);
+      color: var(--groww-green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+    .hero-title-main {
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #FFFFFF 30%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-title-main span.gradient-text {
+      background: linear-gradient(90deg, #00D09C 0%, #00F0FF 50%, #387ED1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub-p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 780px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    .hero-actions-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      background: linear-gradient(90deg, #00D09C 0%, #00B887 100%);
+      color: #0C1017;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 14px 32px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(0, 208, 156, 0.4);
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 26px rgba(0, 208, 156, 0.5);
+    }
+    .btn-hero-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-hero-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .metric-strip-container {
+      max-width: 1040px;
+      margin: 50px auto 60px;
+      padding: 0 20px;
+    }
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      background: rgba(21, 27, 38, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .m-cell-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .m-cell-val {
+      font-size: 26px;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+    .m-cell-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    /* Feature dual column showcase */
+    .showcase-section {
+      max-width: 1180px;
+      margin: 0 auto 70px;
+      padding: 0 20px;
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .showcase-card {
+      background: linear-gradient(180deg, #161D2B 0%, #111722 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: all 0.25s;
+    }
+    .showcase-card:hover {
+      border-color: rgba(0, 208, 156, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .sc-card-badge {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+      align-self: flex-start;
+      text-transform: uppercase;
+    }
+    .sc-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .sc-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .sc-features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .sc-features-list li {
+      font-size: 12px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sc-btn {
+      margin-top: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .sc-btn:hover {
+      background: var(--groww-green);
+      color: #0C1017;
+      border-color: var(--groww-green);
+    }
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .price-box {
+      background: #151C28;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .price-box.featured {
+      border: 2px solid var(--groww-green);
+      background: linear-gradient(180deg, #182433 0%, #111722 100%);
+      position: relative;
+    }
+    .featured-ribbon {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: var(--groww-green);
+      color: #0C1017;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 10px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+    }
+    .price-val {
+      font-size: 32px;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+    .landing-footer {
+      border-top: 1px solid var(--border-color);
+      padding: 30px 40px;
+      background: #0C1017;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    @media (max-width: 850px) {
+      .showcase-grid, .pricing-grid, .metric-strip {
+        grid-template-columns: 1fr;
+      }
+      .hero-title-main { font-size: 32px; }
+      .landing-nav { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body class="landing-body">
+
+  <!-- Top Navigation Header -->
+  <nav class="landing-nav">
+    <div class="brand-wrapper">
+      <div class="brand-icon">T</div>
+      <div class="brand-text">
+        <div class="brand-name">
+          Titan AI <span class="brand-tag">INTELLIGENCE</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 24px;">
+      <a href="#markets-section" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; font-weight: 600;">Markets AI</a>
+      <a href="#cricket-section" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; font-weight: 600;">Cricket AI</a>
+      <a href="#pricing-section" style="color: var(--text-secondary); text-decoration: none; font-size: 13px; font-weight: 600;">Pricing</a>
+      <a href="/app" class="btn-hero-primary" style="padding: 8px 18px; font-size: 13px;">
+        ⚡ Launch App (app.domain)
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="landing-hero">
+    <div class="hero-badge-pill">
+      🚀 Dual-Core AI Architecture • Capital Markets & Sports Analytics
+    </div>
+    <h1 class="hero-title-main">
+      Institutional Quantitative Intelligence for <br>
+      <span class="gradient-text">Indian Equities & International Cricket</span>
+    </h1>
+    <p class="hero-sub-p">
+      Powered by LightGBM Quantile Corridors, FastDTW Historical Pattern Recognition, and Bayesian Match Prediction. Built local-first on high-performance DuckDB with sub-3ms latency.
+    </p>
+
+    <div class="hero-actions-row">
+      <a href="/app" class="btn-hero-primary">
+        🚀 Launch Intelligence Cockpit (app.domain)
+      </a>
+      <a href="#cricket-section" class="btn-hero-secondary">
+        🏏 Explore Cricket AI Engine
+      </a>
+    </div>
+  </header>
+
+  <!-- Metric Strip -->
+  <section class="metric-strip-container">
+    <div class="metric-strip">
+      <div>
+        <div class="m-cell-label">DuckDB Lakehouse</div>
+        <div class="m-cell-val">61,361+</div>
+        <div class="m-cell-sub">Daily Bars Indexed Locally</div>
+      </div>
+      <div>
+        <div class="m-cell-label">Stock Target Hit Rate</div>
+        <div class="m-cell-val" style="color: var(--groww-green);">87.5%</div>
+        <div class="m-cell-sub">Verifiable Advice Track Record</div>
+      </div>
+      <div>
+        <div class="m-cell-label">Cricket Match Accuracy</div>
+        <div class="m-cell-val" style="color: #00F0FF;">88.9%</div>
+        <div class="m-cell-sub">2-Year International Dataset</div>
+      </div>
+      <div>
+        <div class="m-cell-label">Lakehouse Speed</div>
+        <div class="m-cell-val" style="color: var(--groww-blue);">2.1ms</div>
+        <div class="m-cell-sub">Zero-Cloud Latency Response</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dual Showcase Grid -->
+  <section class="showcase-section">
+    <div class="showcase-grid">
+
+      <!-- Product 1: Stock Intelligence -->
+      <div class="showcase-card" id="markets-section">
+        <span class="sc-card-badge" style="background: var(--groww-green-bg); color: var(--groww-green);">📈 Capital Markets</span>
+        <h2 class="sc-title">Titan Markets Cockpit</h2>
+        <p class="sc-desc">
+          Groww-clean capital market intelligence covering the top 50 NSE/BSE institutional equities. Combines microstructure order-flow learning with forward quantile corridors.
+        </p>
+        <ul class="sc-features-list">
+          <li>✅ <strong>60-90 Day Future Targets:</strong> LightGBM quantile corridors (q05, q50, q95).</li>
+          <li>✅ <strong>FastDTW Pattern Matcher:</strong> Scans 10+ years of charts for twin consolidation patterns.</li>
+          <li>✅ <strong>Point-in-Time Fundamentals:</strong> Revenue & Net Profit SVG charts with zero lookahead bias.</li>
+          <li>✅ <strong>Structural Stop-Loss:</strong> Mathematical invalidation price buffer against shocks.</li>
+          <li>✅ <strong>Verified Advice History:</strong> Complete audit log of past calls and target hit dates.</li>
+        </ul>
+        <a href="/app" class="sc-btn">Open Markets Terminal →</a>
+      </div>
+
+      <!-- Product 2: Cricket Intelligence -->
+      <div class="showcase-card" id="cricket-section">
+        <span class="sc-card-badge" style="background: var(--groww-blue-bg); color: #00F0FF;">🏏 Live Sports AI</span>
+        <h2 class="sc-title">Titan Cricket AI Engine</h2>
+        <p class="sc-desc">
+          Quantitative match forecasting for ICC international fixtures (T20I, ODI, Test). Discovers hidden pitch decay, venue dew bias, and 2-year head-to-head patterns.
+        </p>
+        <ul class="sc-features-list">
+          <li>✅ <strong>Win Probability Meter:</strong> Real-time calibrated win expectations (e.g. 66% vs 34%).</li>
+          <li>✅ <strong>Projected Score Corridor:</strong> 5% floor, median expected score, and 95% ceiling.</li>
+          <li>✅ <strong>2-Year Head-to-Head Radar:</strong> Team-vs-team historical match database.</li>
+          <li>✅ <strong>Venue Pitch Analytics:</strong> Wankhede, MCG, Lord's, Eden Gardens, Centurion dynamics.</li>
+          <li>✅ <strong>Self-Learning Brain Log:</strong> Evaluates every match result to continuously improve accuracy.</li>
+        </ul>
+        <a href="/app?segment=cricket" class="sc-btn" style="border-color: #00F0FF; color: #00F0FF;">Launch Cricket Terminal →</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="showcase-section" id="pricing-section">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <h2 style="font-size: 28px; font-weight: 800; color: var(--text-primary);">Commercial Licensing & Subscriptions</h2>
+      <p style="font-size: 14px; color: var(--text-secondary);">Deploy locally or subscribe to private intelligence streams</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Tier 1 -->
+      <div class="price-box">
+        <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Starter Tier</span>
+        <div class="price-val">Free</div>
+        <p style="font-size: 12px; color: var(--text-secondary);">For casual market observers & sports enthusiasts</p>
+        <ul class="sc-features-list" style="font-size: 11px;">
+          <li>• Top 10 Stocks Overview</li>
+          <li>• Daily Closing Market Charts</li>
+          <li>• Upcoming Match Schedules</li>
+          <li>• Basic Win Probabilities</li>
+        </ul>
+        <a href="/app" class="sc-btn" style="margin-top: auto;">Get Started Free</a>
+      </div>
+
+      <!-- Tier 2 -->
+      <div class="price-box featured">
+        <div class="featured-ribbon">Most Popular</div>
+        <span style="font-size: 12px; font-weight: 700; color: var(--groww-green); text-transform: uppercase;">Trader & Sports Pro</span>
+        <div class="price-val">₹1,499 <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">/ month</span></div>
+        <p style="font-size: 12px; color: var(--text-secondary);">For active swing traders, analysts & sports strategists</p>
+        <ul class="sc-features-list" style="font-size: 11px;">
+          <li>• All 50 Institutional Equities</li>
+          <li>• 60-Day Forward Quantile Corridors</li>
+          <li>• 1-Second Live Tick & RAG Stream</li>
+          <li>• Full Cricket AI Score Corridors & Deciders</li>
+          <li>• Target Hit Audit Logs & Advice Feeds</li>
+        </ul>
+        <a href="/app" class="btn-hero-primary" style="text-align: center; justify-content: center; font-size: 13px; margin-top: auto;">Start Pro Access</a>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="price-box">
+        <span style="font-size: 12px; font-weight: 700; color: #387ED1; text-transform: uppercase;">Institutional License</span>
+        <div class="price-val">₹2,50,000 <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">One-Time</span></div>
+        <p style="font-size: 12px; color: var(--text-secondary);">Full White-Label On-Premise Software for Advisory Firms</p>
+        <ul class="sc-features-list" style="font-size: 11px;">
+          <li>• Full Source Code & DuckDB Lakehouse</li>
+          <li>• Sub-Domain Deployment (app.yourbrand.com)</li>
+          <li>• Automated Daily Delta Data Ingestion</li>
+          <li>• Custom Branding & Telegram/WhatsApp Alerts</li>
+          <li>• Unlimited Internal User Licenses</li>
+        </ul>
+        <a href="mailto:contact@titanai.internal" class="sc-btn" style="margin-top: auto;">Contact Sales</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div style="max-width: 1180px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <strong>Titan AI</strong> • Quantitative Capital Markets & Sports Intelligence
+      </div>
+      <div>
+        <a href="/app" style="color: var(--groww-green); text-decoration: none; margin-right: 18px; font-weight: 600;">Open Cockpit App</a>
+        <a href="/landing" style="color: var(--text-secondary); text-decoration: none; margin-right: 18px;">Landing Page</a>
+        <span style="color: var(--text-muted);">© 2026 Titan Intelligence Technologies.</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
+
